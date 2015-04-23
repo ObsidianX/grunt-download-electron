@@ -104,13 +104,14 @@ module.exports = (grunt) ->
 
   grunt.registerTask TaskName, 'Download electron',  ->
     @requiresConfig "#{TaskName}.version", "#{TaskName}.outputDir"
-    {version, outputDir, downloadDir, symbols, rebuild, apm, token} = grunt.config TaskName
+    {version, outputDir, downloadDir, symbols, rebuild, apm, token, platform} = grunt.config TaskName
     downloadDir ?= path.join os.tmpdir(), 'downloaded-electron'
     symbols ?= false
     rebuild ?= true
     apm ?= getApmPath()
     version = "v#{version}"
-    versionDownloadDir = path.join(downloadDir, version)
+    platform ?= process.platform
+    versionDownloadDir = path.join(downloadDir, version, platform)
 
     done = @async()
 
@@ -142,9 +143,9 @@ module.exports = (grunt) ->
       # Which file to download
       filename =
         if symbols
-          "#{projectName}-#{version}-#{process.platform}-#{getArch()}-symbols.zip"
+          "#{projectName}-#{version}-#{platform}-#{getArch()}-symbols.zip"
         else
-          "#{projectName}-#{version}-#{process.platform}-#{getArch()}.zip"
+          "#{projectName}-#{version}-#{platform}-#{getArch()}.zip"
 
       # Find the asset of current platform.
       for asset in releases[0].assets when asset.name is filename
